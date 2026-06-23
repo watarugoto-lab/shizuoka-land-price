@@ -1,0 +1,475 @@
+<title>静岡県 東海道本線 坪単価マップ</title>
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+<style>
+:root{--g:#0d1b2a;--s:#142236;--s2:#1a2e48;--b:#1e3a5f;--t:#e8e0d0;--tm:#8499b0;--ac:#d4472a;--t1:#4eb8aa;--t2:#7ab648;--t3:#f5b731;--t4:#e8732a;--t5:#d4472a}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;background:var(--g);color:var(--t);font-family:-apple-system,'Hiragino Kaku Gothic ProN','Meiryo','Yu Gothic',sans-serif;overflow:hidden;-webkit-text-size-adjust:100%}
+#app{display:flex;flex-direction:column;height:100vh;height:100dvh}
+
+/* HEADER */
+#hdr{flex-shrink:0;padding:10px 16px;border-bottom:1px solid var(--b);display:flex;align-items:center;gap:10px}
+.ey{font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:var(--ac);font-weight:600;margin-bottom:1px}
+h1{font-size:15px;font-weight:800;letter-spacing:-.02em}
+.sub{font-size:9px;color:var(--tm);margin-top:1px;letter-spacing:.02em}
+.tabs{display:flex;gap:2px;background:var(--s);padding:3px;border-radius:7px;border:1px solid var(--b);margin-left:auto;flex-shrink:0}
+.tb{padding:6px 12px;border:none;border-radius:5px;background:transparent;color:var(--tm);font-size:11px;font-family:inherit;cursor:pointer;transition:all .15s;font-weight:500;white-space:nowrap;-webkit-tap-highlight-color:transparent}
+.tb.on{background:var(--s2);color:var(--t)}
+
+/* CONTROLS */
+#ctrl{flex-shrink:0;padding:8px 16px;border-bottom:1px solid var(--b);display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.cl{font-size:11px;color:var(--tm);white-space:nowrap}
+#sl{-webkit-appearance:none;appearance:none;width:130px;height:3px;border-radius:2px;background:var(--b);outline:none;cursor:pointer;flex-shrink:0}
+#sl::-webkit-slider-thumb{-webkit-appearance:none;width:18px;height:18px;border-radius:50%;background:var(--ac);cursor:pointer;border:2px solid #0a1520;box-shadow:0 0 0 1px var(--ac)}
+#sl::-moz-range-thumb{width:16px;height:16px;border-radius:50%;background:var(--ac);border:2px solid #0a1520;cursor:pointer}
+#bv{font-size:12px;font-weight:700;color:var(--ac);min-width:64px}
+.leg{display:flex;gap:8px;margin-left:auto;align-items:center;flex-wrap:wrap}
+.li{display:flex;align-items:center;gap:4px;font-size:10px;color:var(--tm)}
+.lp{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+
+/* VIEWS */
+#cv,#mv{display:none;flex:1;overflow:hidden;flex-direction:column}
+#cv.on,#mv.on{display:flex}
+
+/* CHART */
+#cs{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:4px 16px 20px}
+#cs::-webkit-scrollbar{width:3px}
+#cs::-webkit-scrollbar-thumb{background:var(--b);border-radius:2px}
+.cr{display:flex;align-items:center;height:36px;gap:8px;border-bottom:1px solid rgba(30,58,95,.4);cursor:pointer;padding:0 4px;border-radius:3px;-webkit-tap-highlight-color:transparent}
+.cr:active:not(.fd){background:var(--s)}
+.cr.fd{opacity:.2;pointer-events:none}
+.cn{font-size:12px;font-weight:600;width:68px;text-align:right;flex-shrink:0}
+.cc{font-size:9px;color:var(--tm);width:42px;flex-shrink:0}
+.bw{flex:1;height:22px}
+.bar{height:100%;border-radius:3px;display:flex;align-items:center;padding-right:7px;justify-content:flex-end;min-width:32px;transition:width .4s cubic-bezier(.16,1,.3,1)}
+.bv{font-size:11px;font-weight:700;color:rgba(0,0,0,.72)}
+
+/* MAP */
+#mw{flex:1;position:relative;overflow:hidden;background:#090f18}
+#mc{position:absolute;top:0;left:0;cursor:grab;touch-action:none}
+#mc.dg{cursor:grabbing}
+.zg{position:absolute;bottom:16px;right:14px;display:flex;flex-direction:column;gap:4px;z-index:10}
+.zb{width:38px;height:38px;background:var(--s);border:1px solid var(--b);border-radius:8px;color:var(--t);font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;font-family:inherit;-webkit-tap-highlight-color:transparent}
+.zb:active{background:var(--s2)}
+
+/* TOOLTIP */
+#tp{position:absolute;background:rgba(20,34,54,.97);border:1px solid var(--b);border-radius:10px;padding:11px 15px;pointer-events:none;display:none;min-width:150px;max-width:190px;box-shadow:0 10px 30px rgba(0,0,0,.5);z-index:50}
+.tn{font-size:15px;font-weight:800;letter-spacing:-.01em;margin-bottom:1px}
+.tc{font-size:9px;color:var(--tm);margin-bottom:9px;letter-spacing:.04em}
+.tp2{font-size:26px;font-weight:800;letter-spacing:-.02em;line-height:1}
+.tu{font-size:11px;color:var(--tm);margin-top:1px}
+.tr2{font-size:9px;color:var(--tm);margin-top:7px;padding-top:7px;border-top:1px solid var(--b)}
+
+/* NOTE */
+#nt{flex-shrink:0;padding:5px 16px;font-size:9px;color:var(--tm);border-top:1px solid var(--b);line-height:1.4}
+
+/* MOBILE */
+@media(max-width:540px){
+  #hdr{padding:8px 12px}
+  h1{font-size:14px}
+  .sub{display:none}
+  .tb{padding:6px 10px;font-size:10px}
+  #ctrl{padding:7px 12px;gap:8px}
+  #sl{width:110px}
+  .leg{display:none}
+  .cn{width:58px;font-size:11px}
+  .cc{width:36px;font-size:8px}
+  #cs{padding:4px 12px 20px}
+  .zg{right:10px;bottom:12px}
+}
+
+@media(prefers-reduced-motion:reduce){.bar{transition:none!important}}
+</style>
+
+<div id="app">
+  <div id="hdr">
+    <div>
+      <div class="ey">東海道本線 静岡県内 全40駅</div>
+      <h1>坪単価マップ</h1>
+      <div class="sub">駅徒歩10分圏内・住宅地の目安価格 ／ 公示地価ベース参考値</div>
+    </div>
+    <div class="tabs">
+      <button class="tb on" id="tbc" onclick="sw('chart')">沿線チャート</button>
+      <button class="tb" id="tbm" onclick="sw('map')">地図ビュー</button>
+    </div>
+  </div>
+
+  <div id="ctrl">
+    <span class="cl">予算上限</span>
+    <input type="range" id="sl" min="10" max="80" step="5" value="80" oninput="onB()">
+    <span id="bv">上限なし</span>
+    <div class="leg">
+      <div class="li"><div class="lp" style="background:#4eb8aa"></div>〜15万</div>
+      <div class="li"><div class="lp" style="background:#7ab648"></div>15〜25万</div>
+      <div class="li"><div class="lp" style="background:#f5b731"></div>25〜40万</div>
+      <div class="li"><div class="lp" style="background:#e8732a"></div>40〜65万</div>
+      <div class="li"><div class="lp" style="background:#d4472a"></div>65万〜</div>
+    </div>
+  </div>
+
+  <div id="cv" class="on"><div id="cs"><div id="cr"></div></div></div>
+
+  <div id="mv">
+    <div id="mw">
+      <canvas id="mc"></canvas>
+      <div class="zg">
+        <button class="zb" onclick="dz(1.35)">+</button>
+        <button class="zb" onclick="dz(1/1.35)">−</button>
+        <button class="zb" onclick="rst()" style="font-size:12px">⟳</button>
+      </div>
+      <div id="tp"></div>
+    </div>
+  </div>
+
+  <div id="nt">※ 表示価格は参考値です。実際の取引価格とは異なります。新所原（愛知県境）〜熱海（神奈川県境）の40駅を掲載。</div>
+</div>
+
+<script>
+/* ---- DATA ---- */
+const ST=[
+  {n:"新所原",c:"湖西市",lat:34.718,lon:137.536,p:15,r:"13〜17"},
+  {n:"鷲津",c:"湖西市",lat:34.715,lon:137.570,p:12,r:"10〜14"},
+  {n:"新居町",c:"湖西市",lat:34.694,lon:137.586,p:11,r:"9〜13"},
+  {n:"弁天島",c:"浜松市",lat:34.684,lon:137.617,p:10,r:"8〜12"},
+  {n:"舞阪",c:"浜松市",lat:34.696,lon:137.633,p:13,r:"11〜15"},
+  {n:"高塚",c:"浜松市",lat:34.707,lon:137.674,p:22,r:"19〜25"},
+  {n:"浜松",c:"浜松市",lat:34.704,lon:137.734,p:55,r:"45〜65"},
+  {n:"天竜川",c:"浜松市",lat:34.733,lon:137.778,p:20,r:"17〜23"},
+  {n:"磐田",c:"磐田市",lat:34.721,lon:137.851,p:22,r:"18〜26"},
+  {n:"豊田町",c:"磐田市",lat:34.744,lon:137.894,p:15,r:"12〜18"},
+  {n:"袋井",c:"袋井市",lat:34.748,lon:137.926,p:18,r:"15〜21"},
+  {n:"愛野",c:"袋井市",lat:34.761,lon:137.964,p:13,r:"11〜15"},
+  {n:"掛川",c:"掛川市",lat:34.769,lon:137.998,p:25,r:"20〜30"},
+  {n:"菊川",c:"菊川市",lat:34.752,lon:138.084,p:15,r:"12〜18"},
+  {n:"金谷",c:"島田市",lat:34.804,lon:138.119,p:12,r:"10〜14"},
+  {n:"島田",c:"島田市",lat:34.838,lon:138.176,p:18,r:"15〜21"},
+  {n:"六合",c:"島田市",lat:34.852,lon:138.218,p:14,r:"12〜16"},
+  {n:"藤枝",c:"藤枝市",lat:34.869,lon:138.256,p:28,r:"23〜33"},
+  {n:"西焼津",c:"焼津市",lat:34.868,lon:138.304,p:22,r:"18〜26"},
+  {n:"焼津",c:"焼津市",lat:34.865,lon:138.332,p:25,r:"20〜30"},
+  {n:"用宗",c:"静岡市",lat:34.935,lon:138.367,p:22,r:"18〜26"},
+  {n:"安倍川",c:"静岡市",lat:34.956,lon:138.379,p:28,r:"23〜33"},
+  {n:"静岡",c:"静岡市",lat:34.972,lon:138.389,p:62,r:"50〜75"},
+  {n:"東静岡",c:"静岡市",lat:34.976,lon:138.411,p:45,r:"37〜53"},
+  {n:"草薙",c:"静岡市",lat:34.999,lon:138.453,p:38,r:"30〜45"},
+  {n:"清水",c:"静岡市",lat:35.014,lon:138.493,p:28,r:"22〜34"},
+  {n:"興津",c:"静岡市",lat:35.024,lon:138.531,p:18,r:"14〜22"},
+  {n:"由比",c:"静岡市",lat:35.039,lon:138.583,p:12,r:"9〜15"},
+  {n:"蒲原",c:"静岡市",lat:35.093,lon:138.620,p:11,r:"8〜14"},
+  {n:"新蒲原",c:"静岡市",lat:35.116,lon:138.641,p:12,r:"9〜15"},
+  {n:"富士川",c:"富士市",lat:35.139,lon:138.660,p:15,r:"12〜18"},
+  {n:"富士",c:"富士市",lat:35.162,lon:138.685,p:22,r:"17〜27"},
+  {n:"吉原",c:"富士市",lat:35.170,lon:138.700,p:18,r:"14〜22"},
+  {n:"東田子の浦",c:"富士市",lat:35.151,lon:138.734,p:15,r:"12〜18"},
+  {n:"片浜",c:"沼津市",lat:35.123,lon:138.805,p:20,r:"16〜24"},
+  {n:"原",c:"沼津市",lat:35.119,lon:138.832,p:20,r:"16〜24"},
+  {n:"沼津",c:"沼津市",lat:35.106,lon:138.863,p:40,r:"32〜48"},
+  {n:"三島",c:"三島市",lat:35.121,lon:138.911,p:38,r:"30〜45"},
+  {n:"函南",c:"田方郡",lat:35.102,lon:138.952,p:22,r:"17〜27"},
+  {n:"熱海",c:"熱海市",lat:35.098,lon:139.076,p:65,r:"50〜80"}
+];
+
+/* 静岡県おおまかな外形ポリゴン（簡略化） */
+const PREF=[
+  /* 南海岸（遠州灘）西→東 */
+  [34.695,137.553],[34.680,137.618],[34.648,137.660],
+  [34.600,137.720],[34.594,137.835],[34.592,137.956],
+  [34.597,138.092],[34.596,138.222],
+  /* 御前崎〜駿河湾岸 */
+  [34.660,138.262],[34.712,138.268],[34.757,138.274],
+  [34.800,138.278],[34.840,138.318],[34.866,138.334],
+  [34.912,138.370],[34.948,138.408],
+  /* 清水〜富士 */
+  [35.014,138.492],[35.044,138.572],[35.092,138.617],
+  [35.163,138.670],[35.208,138.694],[35.218,138.720],
+  [35.157,138.738],[35.108,138.820],[35.098,138.858],
+  /* 西伊豆〜熱海 */
+  [35.094,138.946],[35.075,139.002],[35.068,139.038],
+  [35.103,139.077],
+  /* 東境（神奈川県境） */
+  [35.168,139.098],[35.256,139.092],
+  /* 北境（山梨・長野県境）東→西 */
+  [35.488,138.818],[35.512,138.726],[35.558,138.596],
+  [35.626,138.430],[35.662,138.256],[35.654,138.116],
+  [35.612,137.988],[35.528,137.916],[35.440,137.858],
+  [35.195,137.693],
+  /* 西境（愛知県境）北→南 */
+  [35.148,137.566],[35.018,137.558],
+  [34.862,137.548],[34.763,137.545],[34.718,137.547]
+];
+
+const TIERS=[{max:15,col:'#4eb8aa'},{max:25,col:'#7ab648'},{max:40,col:'#f5b731'},{max:65,col:'#e8732a'},{max:9999,col:'#d4472a'}];
+const MAXB=70;
+function tc(p){for(const t of TIERS)if(p<=t.max)return t.col;return TIERS[4].col}
+
+let budget=9999, view='chart';
+
+function onB(){
+  const v=+document.getElementById('sl').value;
+  document.getElementById('bv').textContent=v>=80?'上限なし':v+'万円/坪';
+  budget=v>=80?9999:v;
+  view==='chart'?buildChart():renderMap();
+}
+
+function sw(v){
+  view=v;
+  document.getElementById('cv').classList.toggle('on',v==='chart');
+  document.getElementById('mv').classList.toggle('on',v==='map');
+  document.getElementById('tbc').classList.toggle('on',v==='chart');
+  document.getElementById('tbm').classList.toggle('on',v==='map');
+  if(v==='map')requestAnimationFrame(setupMap);else buildChart();
+}
+
+/* ---- CHART ---- */
+function buildChart(){
+  const rows=document.getElementById('cr');
+  rows.innerHTML='';
+  ST.forEach(s=>{
+    const fd=s.p>budget;
+    const pct=Math.min(100,Math.round(s.p/MAXB*100));
+    const col=tc(s.p);
+    const d=document.createElement('div');
+    d.className='cr'+(fd?' fd':'');
+    d.innerHTML='<div class="cn">'+s.n+'</div><div class="cc">'+s.c+'</div>'+
+      '<div class="bw"><div class="bar" style="width:'+pct+'%;background:'+col+'">'+
+      '<span class="bv">'+s.p+'万</span></div></div>';
+    rows.appendChild(d);
+  });
+}
+
+/* ---- MAP ---- */
+const cvs=document.getElementById('mc');
+const ctx=cvs.getContext('2d');
+const tip=document.getElementById('tp');
+
+/* 地図の表示範囲：静岡県全体がおおよそ入る広さに設定 */
+const GEO={minLon:137.40,maxLon:139.20,minLat:34.52,maxLat:35.72};
+const COS=Math.cos(34.9*Math.PI/180); // ≈0.820
+
+let pr=null, zl=1, px=0, py=0, dg=false, lx=0, ly=0, hov=null;
+
+function mkProj(W,H){
+  const pad=Math.min(W,H)*0.07;
+  const ls=(GEO.maxLon-GEO.minLon)*COS, as=GEO.maxLat-GEO.minLat;
+  const sx=(W-pad*2)/ls, sy=(H-pad*2)/as;
+  const sc=Math.min(sx,sy);
+  const mw=ls*sc, mh=as*sc;
+  return{sc,ox:(W-mw)/2,oy:(H-mh)/2};
+}
+
+function gp(lat,lon){
+  return{
+    x:pr.ox+(lon-GEO.minLon)*COS*pr.sc,
+    y:pr.oy+(GEO.maxLat-lat)*pr.sc
+  };
+}
+
+function setupMap(){
+  const w=document.getElementById('mw');
+  const dpr=window.devicePixelRatio||1;
+  const W=w.clientWidth, H=w.clientHeight;
+  cvs.width=W*dpr; cvs.height=H*dpr;
+  cvs.style.width=W+'px'; cvs.style.height=H+'px';
+  ctx.scale(dpr,dpr);
+  pr=mkProj(W,H);
+  zl=1; px=0; py=0;
+  renderMap();
+}
+
+function renderMap(){
+  const dpr=window.devicePixelRatio||1;
+  const W=cvs.width/dpr, H=cvs.height/dpr;
+  if(!pr||!W||!H)return;
+  ctx.clearRect(0,0,W,H);
+  ctx.fillStyle='#090f18'; ctx.fillRect(0,0,W,H);
+  ctx.save();
+  ctx.translate(px,py); ctx.scale(zl,zl);
+  drawPref();
+  drawGrid();
+  drawFuji();
+  drawLine();
+  drawDots();
+  ctx.restore();
+}
+
+/* 静岡県外形 */
+function drawPref(){
+  ctx.beginPath();
+  PREF.forEach(([lat,lon],i)=>{
+    const{x,y}=gp(lat,lon);
+    i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);
+  });
+  ctx.closePath();
+  ctx.fillStyle='rgba(24,48,90,.45)';
+  ctx.fill();
+  ctx.strokeStyle='rgba(70,110,180,.65)';
+  ctx.lineWidth=1.2/zl;
+  ctx.lineJoin='round';
+  ctx.stroke();
+}
+
+function drawGrid(){
+  ctx.strokeStyle='rgba(30,58,95,.28)';
+  ctx.lineWidth=0.4/zl;
+  ctx.setLineDash([3/zl,8/zl]);
+  for(let lon=137.4;lon<=139.3;lon+=0.2){
+    const a=gp(GEO.minLat,lon),b=gp(GEO.maxLat,lon);
+    ctx.beginPath();ctx.moveTo(a.x,a.y);ctx.lineTo(b.x,b.y);ctx.stroke();
+  }
+  for(let lat=34.5;lat<=35.8;lat+=0.2){
+    const a=gp(lat,GEO.minLon),b=gp(lat,GEO.maxLon);
+    ctx.beginPath();ctx.moveTo(a.x,a.y);ctx.lineTo(b.x,b.y);ctx.stroke();
+  }
+  ctx.setLineDash([]);
+}
+
+function drawFuji(){
+  const{x,y}=gp(35.3606,138.7274);
+  const sz=10/zl;
+  ctx.beginPath();
+  ctx.moveTo(x,y-sz*1.5);ctx.lineTo(x-sz,y+sz*0.5);ctx.lineTo(x+sz,y+sz*0.5);
+  ctx.closePath();
+  ctx.fillStyle='rgba(255,255,255,.13)';ctx.fill();
+  ctx.strokeStyle='rgba(255,255,255,.35)';ctx.lineWidth=0.8/zl;ctx.stroke();
+  ctx.fillStyle='rgba(200,215,230,.55)';
+  ctx.font='bold '+(7.5/zl)+'px sans-serif';
+  ctx.textAlign='center';
+  ctx.fillText('富士山',x,y+sz*0.5+9/zl);
+}
+
+function drawLine(){
+  ctx.beginPath();
+  ST.forEach((s,i)=>{const{x,y}=gp(s.lat,s.lon);i===0?ctx.moveTo(x,y):ctx.lineTo(x,y)});
+  ctx.shadowColor='rgba(212,71,42,.55)';ctx.shadowBlur=8/zl;
+  ctx.strokeStyle='#c03820';ctx.lineWidth=3/zl;ctx.lineJoin='round';ctx.stroke();
+  ctx.shadowBlur=0;
+  ctx.beginPath();
+  ST.forEach((s,i)=>{const{x,y}=gp(s.lat,s.lon);i===0?ctx.moveTo(x,y):ctx.lineTo(x,y)});
+  ctx.strokeStyle='#e06040';ctx.lineWidth=1.2/zl;ctx.stroke();
+}
+
+function drawDots(){
+  const R=4.5/zl;
+  const lbl=zl>=1.1, big=zl>=1.8;
+  ctx.textAlign='center';
+  ST.forEach(s=>{
+    const{x,y}=gp(s.lat,s.lon);
+    const col=tc(s.p),fd=s.p>budget,isH=s===hov;
+    const r=isH?R*1.6:R;
+    if(isH){
+      ctx.beginPath();ctx.arc(x,y,r+5/zl,0,Math.PI*2);
+      ctx.fillStyle=col+'22';ctx.fill();
+    }
+    ctx.beginPath();ctx.arc(x,y,r+1.2/zl,0,Math.PI*2);
+    ctx.fillStyle='#090f18';ctx.fill();
+    ctx.beginPath();ctx.arc(x,y,r,0,Math.PI*2);
+    ctx.fillStyle=fd?'#1e2d3e':col;ctx.fill();
+    if(!fd&&s.p>=38){
+      ctx.beginPath();ctx.arc(x,y,r*.38,0,Math.PI*2);
+      ctx.fillStyle='rgba(255,255,255,.65)';ctx.fill();
+    }
+    if(!lbl)return;
+    const maj=s.p>=35||['浜松','静岡','清水','富士','沼津','三島','熱海','掛川','藤枝','焼津'].includes(s.n);
+    if(maj||big){
+      ctx.font='bold '+(maj?9.5:8)/zl+'px "Hiragino Kaku Gothic ProN",Meiryo,sans-serif';
+      ctx.shadowColor='#090f18';ctx.shadowBlur=4/zl;
+      ctx.fillStyle=fd?'#2a4060':'#ddd6c8';
+      ctx.fillText(s.n,x,y-r-4/zl);
+      if(maj&&!fd){ctx.font='bold '+(8/zl)+'px sans-serif';ctx.fillStyle=col;ctx.fillText(s.p+'万',x,y+r+10/zl);}
+      ctx.shadowBlur=0;
+    }
+  });
+}
+
+/* ---- EVENT HANDLERS ---- */
+function near(mx,my,thr){
+  let best=null,bd=Infinity;
+  const dpr=window.devicePixelRatio||1;
+  ST.forEach(s=>{
+    const{x,y}=gp(s.lat,s.lon);
+    const sx=x*zl+px, sy=y*zl+py;
+    const d=Math.hypot(mx-sx,my-sy);
+    if(d<bd&&d<thr){bd=d;best=s;}
+  });
+  return best;
+}
+
+function showTip(s,mx,my){
+  const col=tc(s.p);
+  tip.innerHTML='<div class="tn">'+s.n+'</div>'+
+    '<div class="tc">東海道本線 ／ '+s.c+'</div>'+
+    '<div class="tp2" style="color:'+col+'">'+s.p+'万</div>'+
+    '<div class="tu">円／坪</div>'+
+    '<div class="tr2">参考レンジ：'+s.r+'万円/坪</div>';
+  tip.style.display='block';
+  const W=cvs.parentElement.clientWidth, H=cvs.parentElement.clientHeight;
+  let tx=mx+18, ty=my-70;
+  if(tx+185>W)tx=Math.max(4,mx-195);
+  if(ty<6)ty=6;
+  if(ty+175>H)ty=Math.max(4,H-180);
+  tip.style.left=tx+'px';tip.style.top=ty+'px';
+}
+
+/* Mouse */
+cvs.addEventListener('mousedown',e=>{dg=true;lx=e.clientX;ly=e.clientY;cvs.classList.add('dg')});
+window.addEventListener('mouseup',()=>{dg=false;cvs.classList.remove('dg')});
+cvs.addEventListener('mousemove',e=>{
+  const rect=cvs.getBoundingClientRect();
+  const mx=e.clientX-rect.left, my=e.clientY-rect.top;
+  if(dg){px+=e.clientX-lx;py+=e.clientY-ly;lx=e.clientX;ly=e.clientY;renderMap();tip.style.display='none';return;}
+  const s=near(mx,my,24);
+  if(s!==hov){hov=s;renderMap();if(s)showTip(s,mx,my);else tip.style.display='none';}
+});
+cvs.addEventListener('mouseleave',()=>{tip.style.display='none';hov=null;renderMap()});
+cvs.addEventListener('wheel',e=>{
+  e.preventDefault();
+  const rect=cvs.getBoundingClientRect();
+  za(e.deltaY<0?1.18:1/1.18,e.clientX-rect.left,e.clientY-rect.top);
+},{passive:false});
+
+/* Touch */
+let tc2=null,lpd=0,tapT=0,tapS=null;
+cvs.addEventListener('touchstart',e=>{
+  e.preventDefault();
+  tc2=Array.from(e.touches);
+  if(tc2.length===2)lpd=Math.hypot(tc2[0].clientX-tc2[1].clientX,tc2[0].clientY-tc2[1].clientY);
+  if(tc2.length===1){tapT=Date.now();tapS=tc2[0];}
+},{passive:false});
+cvs.addEventListener('touchmove',e=>{
+  e.preventDefault();
+  const now=Array.from(e.touches);
+  if(now.length===1&&tc2.length>=1){
+    px+=now[0].clientX-tc2[0].clientX;py+=now[0].clientY-tc2[0].clientY;
+    tip.style.display='none';renderMap();
+  }else if(now.length===2){
+    const d=Math.hypot(now[0].clientX-now[1].clientX,now[0].clientY-now[1].clientY);
+    const cx=(now[0].clientX+now[1].clientX)/2,cy=(now[0].clientY+now[1].clientY)/2;
+    const rect=cvs.getBoundingClientRect();
+    za(d/lpd,cx-rect.left,cy-rect.top);lpd=d;
+  }
+  tc2=now;
+},{passive:false});
+cvs.addEventListener('touchend',e=>{
+  if(Date.now()-tapT<250&&tapS&&e.changedTouches.length===1){
+    const t=e.changedTouches[0];
+    if(Math.hypot(t.clientX-tapS.clientX,t.clientY-tapS.clientY)<10){
+      const rect=cvs.getBoundingClientRect();
+      const mx=t.clientX-rect.left, my=t.clientY-rect.top;
+      const s=near(mx,my,36);
+      if(s){hov=s;renderMap();showTip(s,mx,my);}
+      else{hov=null;renderMap();tip.style.display='none';}
+    }
+  }
+});
+
+function za(f,mx,my){
+  const nz=Math.max(.4,Math.min(12,zl*f));
+  px=mx-(mx-px)*(nz/zl);py=my-(my-py)*(nz/zl);zl=nz;renderMap();
+}
+function dz(f){za(f,cvs.clientWidth/2,cvs.clientHeight/2)}
+function rst(){zl=1;px=0;py=0;hov=null;tip.style.display='none';renderMap()}
+
+window.addEventListener('resize',()=>{if(view==='map')setupMap()});
+
+/* INIT */
+buildChart();
+</script>
