@@ -59,6 +59,11 @@ h1{font-size:15px;font-weight:800;letter-spacing:-.02em}
 .tu{font-size:11px;color:var(--tm);margin-top:1px}
 .tr2{font-size:9px;color:var(--tm);margin-top:7px;padding-top:7px;border-top:1px solid var(--b)}
 
+/* データソースバッジ */
+.bd{font-size:8px;font-weight:700;padding:1px 5px;border-radius:3px;flex-shrink:0;letter-spacing:.02em;align-self:center}
+.bd-r{background:rgba(122,182,72,.18);color:#7ab648;border:1px solid rgba(122,182,72,.35)}
+.bd-e{background:rgba(132,153,176,.12);color:#8499b0;border:1px solid rgba(132,153,176,.25)}
+
 /* NOTE */
 #nt{flex-shrink:0;padding:5px 16px;font-size:9px;color:var(--tm);border-top:1px solid var(--b);line-height:1.4}
 
@@ -73,6 +78,7 @@ h1{font-size:15px;font-weight:800;letter-spacing:-.02em}
   .leg{display:none}
   .cn{width:58px;font-size:11px}
   .cc{width:36px;font-size:8px}
+  .bd{display:none}
   #cs{padding:4px 12px 20px}
   .zg{right:10px;bottom:12px}
 }
@@ -85,7 +91,7 @@ h1{font-size:15px;font-weight:800;letter-spacing:-.02em}
     <div>
       <div class="ey">東海道本線 静岡県内 全40駅</div>
       <h1>坪単価マップ</h1>
-      <div class="sub">駅徒歩10分圏内・住宅地の目安価格 ／ 公示地価ベース参考値</div>
+      <div class="sub">駅徒歩10分圏内・住宅地の目安価格 ／ 実取引データ（2025年・国土交通省）</div>
     </div>
     <div class="tabs">
       <button class="tb on" id="tbc" onclick="sw('chart')">沿線チャート</button>
@@ -95,7 +101,7 @@ h1{font-size:15px;font-weight:800;letter-spacing:-.02em}
 
   <div id="ctrl">
     <span class="cl">予算上限</span>
-    <input type="range" id="sl" min="10" max="80" step="5" value="80" oninput="onB()">
+    <input type="range" id="sl" min="10" max="50" step="5" value="50" oninput="onB()">
     <span id="bv">上限なし</span>
     <div class="leg">
       <div class="li"><div class="lp" style="background:#4eb8aa"></div>〜15万</div>
@@ -120,52 +126,52 @@ h1{font-size:15px;font-weight:800;letter-spacing:-.02em}
     </div>
   </div>
 
-  <div id="nt">※ 表示価格は参考値です。実際の取引価格とは異なります。新所原（愛知県境）〜熱海（神奈川県境）の40駅を掲載。</div>
+  <div id="nt">※「実」=不動産取引価格情報（住宅地・宅地のみ）市区町村中央値・2025年（国土交通省REINFOLIB）。駅前ではなく市区全体の平均値のため、参考値です。新所原〜熱海の40駅掲載。</div>
 </div>
 
 <script>
 /* ---- DATA ---- */
 const ST=[
-  {n:"新所原",c:"湖西市",lat:34.718,lon:137.536,p:15,r:"13〜17"},
-  {n:"鷲津",c:"湖西市",lat:34.715,lon:137.570,p:12,r:"10〜14"},
-  {n:"新居町",c:"湖西市",lat:34.694,lon:137.586,p:11,r:"9〜13"},
-  {n:"弁天島",c:"浜松市",lat:34.684,lon:137.617,p:10,r:"8〜12"},
-  {n:"舞阪",c:"浜松市",lat:34.696,lon:137.633,p:13,r:"11〜15"},
-  {n:"高塚",c:"浜松市",lat:34.707,lon:137.674,p:22,r:"19〜25"},
-  {n:"浜松",c:"浜松市",lat:34.704,lon:137.734,p:55,r:"45〜65"},
-  {n:"天竜川",c:"浜松市",lat:34.733,lon:137.778,p:20,r:"17〜23"},
-  {n:"磐田",c:"磐田市",lat:34.721,lon:137.851,p:22,r:"18〜26"},
-  {n:"豊田町",c:"磐田市",lat:34.744,lon:137.894,p:15,r:"12〜18"},
-  {n:"袋井",c:"袋井市",lat:34.748,lon:137.926,p:18,r:"15〜21"},
-  {n:"愛野",c:"袋井市",lat:34.761,lon:137.964,p:13,r:"11〜15"},
-  {n:"掛川",c:"掛川市",lat:34.769,lon:137.998,p:25,r:"20〜30"},
-  {n:"菊川",c:"菊川市",lat:34.752,lon:138.084,p:15,r:"12〜18"},
-  {n:"金谷",c:"島田市",lat:34.804,lon:138.119,p:12,r:"10〜14"},
-  {n:"島田",c:"島田市",lat:34.838,lon:138.176,p:18,r:"15〜21"},
-  {n:"六合",c:"島田市",lat:34.852,lon:138.218,p:14,r:"12〜16"},
-  {n:"藤枝",c:"藤枝市",lat:34.869,lon:138.256,p:28,r:"23〜33"},
-  {n:"西焼津",c:"焼津市",lat:34.868,lon:138.304,p:22,r:"18〜26"},
-  {n:"焼津",c:"焼津市",lat:34.865,lon:138.332,p:25,r:"20〜30"},
-  {n:"用宗",c:"静岡市",lat:34.935,lon:138.367,p:22,r:"18〜26"},
-  {n:"安倍川",c:"静岡市",lat:34.956,lon:138.379,p:28,r:"23〜33"},
-  {n:"静岡",c:"静岡市",lat:34.972,lon:138.389,p:62,r:"50〜75"},
-  {n:"東静岡",c:"静岡市",lat:34.976,lon:138.411,p:45,r:"37〜53"},
-  {n:"草薙",c:"静岡市",lat:34.999,lon:138.453,p:38,r:"30〜45"},
-  {n:"清水",c:"静岡市",lat:35.014,lon:138.493,p:28,r:"22〜34"},
-  {n:"興津",c:"静岡市",lat:35.024,lon:138.531,p:18,r:"14〜22"},
-  {n:"由比",c:"静岡市",lat:35.039,lon:138.583,p:12,r:"9〜15"},
-  {n:"蒲原",c:"静岡市",lat:35.093,lon:138.620,p:11,r:"8〜14"},
-  {n:"新蒲原",c:"静岡市",lat:35.116,lon:138.641,p:12,r:"9〜15"},
-  {n:"富士川",c:"富士市",lat:35.139,lon:138.660,p:15,r:"12〜18"},
-  {n:"富士",c:"富士市",lat:35.162,lon:138.685,p:22,r:"17〜27"},
-  {n:"吉原",c:"富士市",lat:35.170,lon:138.700,p:18,r:"14〜22"},
-  {n:"東田子の浦",c:"富士市",lat:35.151,lon:138.734,p:15,r:"12〜18"},
-  {n:"片浜",c:"沼津市",lat:35.123,lon:138.805,p:20,r:"16〜24"},
-  {n:"原",c:"沼津市",lat:35.119,lon:138.832,p:20,r:"16〜24"},
-  {n:"沼津",c:"沼津市",lat:35.106,lon:138.863,p:40,r:"32〜48"},
-  {n:"三島",c:"三島市",lat:35.121,lon:138.911,p:38,r:"30〜45"},
-  {n:"函南",c:"田方郡",lat:35.102,lon:138.952,p:22,r:"17〜27"},
-  {n:"熱海",c:"熱海市",lat:35.098,lon:139.076,p:65,r:"50〜80"}
+  {n:"新所原",c:"湖西市",muni:"湖西市",lat:34.718,lon:137.536,p:15,r:"13〜17"},
+  {n:"鷲津",c:"湖西市",muni:"湖西市",lat:34.715,lon:137.570,p:12,r:"10〜14"},
+  {n:"新居町",c:"湖西市",muni:"湖西市",lat:34.694,lon:137.586,p:11,r:"9〜13"},
+  {n:"弁天島",c:"浜松市",muni:"浜松市浜名区",lat:34.684,lon:137.617,p:10,r:"8〜12"},
+  {n:"舞阪",c:"浜松市",muni:"浜松市浜名区",lat:34.696,lon:137.633,p:13,r:"11〜15"},
+  {n:"高塚",c:"浜松市",muni:"浜松市中央区",lat:34.707,lon:137.674,p:22,r:"19〜25"},
+  {n:"浜松",c:"浜松市",muni:"浜松市中央区",lat:34.704,lon:137.734,p:55,r:"45〜65"},
+  {n:"天竜川",c:"浜松市",muni:"浜松市中央区",lat:34.733,lon:137.778,p:20,r:"17〜23"},
+  {n:"磐田",c:"磐田市",muni:"磐田市",lat:34.721,lon:137.851,p:22,r:"18〜26"},
+  {n:"豊田町",c:"磐田市",muni:"磐田市",lat:34.744,lon:137.894,p:15,r:"12〜18"},
+  {n:"袋井",c:"袋井市",muni:"袋井市",lat:34.748,lon:137.926,p:18,r:"15〜21"},
+  {n:"愛野",c:"袋井市",muni:"袋井市",lat:34.761,lon:137.964,p:13,r:"11〜15"},
+  {n:"掛川",c:"掛川市",muni:"掛川市",lat:34.769,lon:137.998,p:25,r:"20〜30"},
+  {n:"菊川",c:"菊川市",muni:"菊川市",lat:34.752,lon:138.084,p:15,r:"12〜18"},
+  {n:"金谷",c:"島田市",muni:"島田市",lat:34.804,lon:138.119,p:12,r:"10〜14"},
+  {n:"島田",c:"島田市",muni:"島田市",lat:34.838,lon:138.176,p:18,r:"15〜21"},
+  {n:"六合",c:"島田市",muni:"島田市",lat:34.852,lon:138.218,p:14,r:"12〜16"},
+  {n:"藤枝",c:"藤枝市",muni:"藤枝市",lat:34.869,lon:138.256,p:28,r:"23〜33"},
+  {n:"西焼津",c:"焼津市",muni:"焼津市",lat:34.868,lon:138.304,p:22,r:"18〜26"},
+  {n:"焼津",c:"焼津市",muni:"焼津市",lat:34.865,lon:138.332,p:25,r:"20〜30"},
+  {n:"用宗",c:"静岡市",muni:"静岡市駿河区",lat:34.935,lon:138.367,p:22,r:"18〜26"},
+  {n:"安倍川",c:"静岡市",muni:"静岡市葵区",lat:34.956,lon:138.379,p:28,r:"23〜33"},
+  {n:"静岡",c:"静岡市",muni:"静岡市葵区",lat:34.972,lon:138.389,p:62,r:"50〜75"},
+  {n:"東静岡",c:"静岡市",muni:"静岡市葵区",lat:34.976,lon:138.411,p:45,r:"37〜53"},
+  {n:"草薙",c:"静岡市",muni:"静岡市清水区",lat:34.999,lon:138.453,p:38,r:"30〜45"},
+  {n:"清水",c:"静岡市",muni:"静岡市清水区",lat:35.014,lon:138.493,p:28,r:"22〜34"},
+  {n:"興津",c:"静岡市",muni:"静岡市清水区",lat:35.024,lon:138.531,p:18,r:"14〜22"},
+  {n:"由比",c:"静岡市",muni:"静岡市清水区",lat:35.039,lon:138.583,p:12,r:"9〜15"},
+  {n:"蒲原",c:"静岡市",muni:"静岡市清水区",lat:35.093,lon:138.620,p:11,r:"8〜14"},
+  {n:"新蒲原",c:"静岡市",muni:"静岡市清水区",lat:35.116,lon:138.641,p:12,r:"9〜15"},
+  {n:"富士川",c:"富士市",muni:"富士市",lat:35.139,lon:138.660,p:15,r:"12〜18"},
+  {n:"富士",c:"富士市",muni:"富士市",lat:35.162,lon:138.685,p:22,r:"17〜27"},
+  {n:"吉原",c:"富士市",muni:"富士市",lat:35.170,lon:138.700,p:18,r:"14〜22"},
+  {n:"東田子の浦",c:"富士市",muni:"富士市",lat:35.151,lon:138.734,p:15,r:"12〜18"},
+  {n:"片浜",c:"沼津市",muni:"沼津市",lat:35.123,lon:138.805,p:20,r:"16〜24"},
+  {n:"原",c:"沼津市",muni:"沼津市",lat:35.119,lon:138.832,p:20,r:"16〜24"},
+  {n:"沼津",c:"沼津市",muni:"沼津市",lat:35.106,lon:138.863,p:40,r:"32〜48"},
+  {n:"三島",c:"三島市",muni:"三島市",lat:35.121,lon:138.911,p:38,r:"30〜45"},
+  {n:"函南",c:"函南町",muni:"田方郡函南町",lat:35.102,lon:138.952,p:22,r:"17〜27"},
+  {n:"熱海",c:"熱海市",muni:"熱海市",lat:35.098,lon:139.076,p:65,r:"50〜80"}
 ];
 
 /* 静岡県おおまかな外形ポリゴン（簡略化） */
@@ -198,15 +204,18 @@ const PREF=[
 ];
 
 const TIERS=[{max:15,col:'#4eb8aa'},{max:25,col:'#7ab648'},{max:40,col:'#f5b731'},{max:65,col:'#e8732a'},{max:9999,col:'#d4472a'}];
-const MAXB=70;
+const MAXB=50;
 function tc(p){for(const t of TIERS)if(p<=t.max)return t.col;return TIERS[4].col}
+/* REINFOLIB実取引データ（2025年・住宅地・宅地・市区町村中央値 万円/坪） */
+const REAL_PRICES={"湖西市":16.2,"浜松市浜名区":16.0,"浜松市中央区":23.1,"磐田市":16.2,"袋井市":13.2,"掛川市":13.9,"菊川市":8.9,"島田市":12.9,"藤枝市":15.9,"焼津市":10.9,"静岡市葵区":46.3,"静岡市駿河区":39.7,"静岡市清水区":23.8,"富士市":15.9,"沼津市":22.0,"三島市":34.7,"田方郡函南町":15.9,"熱海市":3.9};
+function dp(s){return s.realP!==undefined?s.realP:s.p;}
 
 let budget=9999, view='chart';
 
 function onB(){
   const v=+document.getElementById('sl').value;
-  document.getElementById('bv').textContent=v>=80?'上限なし':v+'万円/坪';
-  budget=v>=80?9999:v;
+  document.getElementById('bv').textContent=v>=50?'上限なし':v+'万円/坪';
+  budget=v>=50?9999:v;
   view==='chart'?buildChart():renderMap();
 }
 
@@ -224,14 +233,18 @@ function buildChart(){
   const rows=document.getElementById('cr');
   rows.innerHTML='';
   ST.forEach(s=>{
-    const fd=s.p>budget;
-    const pct=Math.min(100,Math.round(s.p/MAXB*100));
-    const col=tc(s.p);
+    const p=dp(s);
+    const fd=p>budget;
+    const pct=Math.min(100,Math.round(p/MAXB*100));
+    const col=tc(p);
+    const badge=s.realP!==undefined?
+      '<span class="bd bd-r">実</span>':
+      '<span class="bd bd-e">推</span>';
     const d=document.createElement('div');
     d.className='cr'+(fd?' fd':'');
-    d.innerHTML='<div class="cn">'+s.n+'</div><div class="cc">'+s.c+'</div>'+
+    d.innerHTML='<div class="cn">'+s.n+'</div><div class="cc">'+s.c+'</div>'+badge+
       '<div class="bw"><div class="bar" style="width:'+pct+'%;background:'+col+'">'+
-      '<span class="bv">'+s.p+'万</span></div></div>';
+      '<span class="bv">'+p+'万</span></div></div>';
     rows.appendChild(d);
   });
 }
@@ -353,7 +366,7 @@ function drawDots(){
   ctx.textAlign='center';
   ST.forEach(s=>{
     const{x,y}=gp(s.lat,s.lon);
-    const col=tc(s.p),fd=s.p>budget,isH=s===hov;
+    const p=dp(s),col=tc(p),fd=p>budget,isH=s===hov;
     const r=isH?R*1.6:R;
     if(isH){
       ctx.beginPath();ctx.arc(x,y,r+5/zl,0,Math.PI*2);
@@ -363,18 +376,18 @@ function drawDots(){
     ctx.fillStyle='#090f18';ctx.fill();
     ctx.beginPath();ctx.arc(x,y,r,0,Math.PI*2);
     ctx.fillStyle=fd?'#1e2d3e':col;ctx.fill();
-    if(!fd&&s.p>=38){
+    if(!fd&&p>=38){
       ctx.beginPath();ctx.arc(x,y,r*.38,0,Math.PI*2);
       ctx.fillStyle='rgba(255,255,255,.65)';ctx.fill();
     }
     if(!lbl)return;
-    const maj=s.p>=35||['浜松','静岡','清水','富士','沼津','三島','熱海','掛川','藤枝','焼津'].includes(s.n);
+    const maj=p>=35||['浜松','静岡','清水','富士','沼津','三島','熱海','掛川','藤枝','焼津'].includes(s.n);
     if(maj||big){
       ctx.font='bold '+(maj?9.5:8)/zl+'px "Hiragino Kaku Gothic ProN",Meiryo,sans-serif';
       ctx.shadowColor='#090f18';ctx.shadowBlur=4/zl;
       ctx.fillStyle=fd?'#2a4060':'#ddd6c8';
       ctx.fillText(s.n,x,y-r-4/zl);
-      if(maj&&!fd){ctx.font='bold '+(8/zl)+'px sans-serif';ctx.fillStyle=col;ctx.fillText(s.p+'万',x,y+r+10/zl);}
+      if(maj&&!fd){ctx.font='bold '+(8/zl)+'px sans-serif';ctx.fillStyle=col;ctx.fillText(p+'万',x,y+r+10/zl);}
       ctx.shadowBlur=0;
     }
   });
@@ -394,12 +407,15 @@ function near(mx,my,thr){
 }
 
 function showTip(s,mx,my){
-  const col=tc(s.p);
+  const p=dp(s),col=tc(p);
+  const src=s.realP!==undefined
+    ?'<span style="color:#7ab648">実取引</span>（2025年・不動産取引価格情報）'
+    :'推定値（公示地価ベース）';
   tip.innerHTML='<div class="tn">'+s.n+'</div>'+
     '<div class="tc">東海道本線 ／ '+s.c+'</div>'+
-    '<div class="tp2" style="color:'+col+'">'+s.p+'万</div>'+
+    '<div class="tp2" style="color:'+col+'">'+p+'万</div>'+
     '<div class="tu">円／坪</div>'+
-    '<div class="tr2">参考レンジ：'+s.r+'万円/坪</div>';
+    '<div class="tr2">'+src+'</div>';
   tip.style.display='block';
   const W=cvs.parentElement.clientWidth, H=cvs.parentElement.clientHeight;
   let tx=mx+18, ty=my-70;
@@ -471,5 +487,6 @@ function rst(){zl=1;px=0;py=0;hov=null;tip.style.display='none';renderMap()}
 window.addEventListener('resize',()=>{if(view==='map')setupMap()});
 
 /* INIT */
+ST.forEach(s=>{const rp=REAL_PRICES[s.muni];if(rp!==undefined)s.realP=rp;});
 buildChart();
 </script>
